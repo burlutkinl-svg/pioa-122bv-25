@@ -1,5 +1,13 @@
 from db.backend.file import FileDatabase
 from db.backend.memory import MemoryDatabase
+from db.backend.errors import (
+    TableAlreadyExistsError,
+    TableNotFoundError,
+    MissingColumnError,
+    UnknownColumnError,
+    InvalidStorageDataError,
+    DatabaseError,
+)
 
 
 class TUI:
@@ -23,12 +31,16 @@ class TUI:
             elif cmd == "create_table":
                 name = input("Имя таблицы: ")
                 cols = input("Колонки через пробел: ").split()
-                self.database.create_table(name, tuple(cols))
-                print(f"Таблица {name} создана.")
+                try:
+                    self.database.create_table(name, tuple(cols))
+                    print(f"Таблица {name} создана.")
+                except TableAlreadyExistsError as e:
+                    print(f"Ошибка: {e}")
+                except DatabaseError as e:
+                    print(f"Ошибка базы данных: {e}")
             elif cmd == "insert":
                 name = input("Имя таблицы: ")
                 record = {}
-                # упрощённый ввод: ключ=значение через пробел
                 parts = input("Поля (ключ=значение через пробел): ").split()
                 for p in parts:
                     if '=' in p:
@@ -38,8 +50,13 @@ class TUI:
                         except ValueError:
                             pass
                         record[k] = v
-                self.database.insert_record(name, record)
-                print("Запись добавлена.")
+                try:
+                    self.database.insert_record(name, record)
+                    print("Запись добавлена.")
+                except (TableNotFoundError, MissingColumnError, UnknownColumnError) as e:
+                    print(f"Ошибка: {e}")
+                except DatabaseError as e:
+                    print(f"Ошибка базы данных: {e}")
             elif cmd == "select":
                 name = input("Имя таблицы: ")
                 filters = {}
@@ -53,8 +70,13 @@ class TUI:
                             except ValueError:
                                 pass
                             filters[k] = v
-                records = self.database.select_records(name, **filters)
-                for r in records:
-                    print(r)
+                try:
+                    records = self.database.select_records(name, **filters)
+                    for r in records:
+                        print(r)
+                except TableNotFoundError as e:
+                    print(f"Ошибка: {e}")
+                except DatabaseError as e:
+                    print(f"Ошибка базы данных: {e}")
             else:
                 print("Неизвестная команда.")

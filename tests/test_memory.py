@@ -1,6 +1,11 @@
 import unittest
 from src.db.backend.memory import MemoryDatabase
-from src.db.backend.errors import TableNotFoundError, MissingColumnError, UnknownColumnError, TableAlreadyExistsError
+from src.db.backend.errors import (
+    TableNotFoundError,
+    MissingColumnError,
+    UnknownColumnError,
+    TableAlreadyExistsError,
+)
 
 class TestMemoryDatabase(unittest.TestCase):
     def setUp(self):

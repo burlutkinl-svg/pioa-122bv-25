@@ -1,7 +1,12 @@
 import tempfile
 import unittest
 from src.db.backend.file import FileDatabase
-from src.db.backend.errors import TableNotFoundError, MissingColumnError, UnknownColumnError, InvalidStorageDataError
+from src.db.backend.errors import (
+    TableNotFoundError,
+    MissingColumnError,
+    UnknownColumnError,
+    InvalidStorageDataError,
+)
 
 class TestFileDatabase(unittest.TestCase):
     def test_data_is_saved_between_instances(self):
@@ -45,7 +50,6 @@ class TestFileDatabase(unittest.TestCase):
 
     def test_invalid_json(self):
         with tempfile.TemporaryDirectory() as directory:
-            import json
             path = FileDatabase(directory)._get_table_path("corrupt")
             path.write_text("{ not valid json", encoding="utf-8")
             db = FileDatabase(directory)
